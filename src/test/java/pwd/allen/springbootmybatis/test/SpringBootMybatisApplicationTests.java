@@ -1,4 +1,4 @@
-package pwd.allen.springbootmybatis;
+package pwd.allen.springbootmybatis.test;
 
 import org.junit.Test;
 import org.junit.runner.RunWith;

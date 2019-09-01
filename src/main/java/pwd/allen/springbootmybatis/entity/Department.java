@@ -1,8 +1,8 @@
 package pwd.allen.springbootmybatis.entity;
 
-import org.apache.ibatis.annotations.Mapper;
+import java.io.Serializable;
 
-public class Department {
+public class Department implements Serializable {
 
     private Integer id;
     private String departmentName;

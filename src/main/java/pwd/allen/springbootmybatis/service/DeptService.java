@@ -15,6 +15,7 @@ import pwd.allen.springbootmybatis.mapper.DepartmentMapper;
 @CacheConfig(cacheNames = "dept")
 public class DeptService {
 
+    @SuppressWarnings("SpringJavaInjectionPointsAutowiringInspection")
     @Autowired
     private DepartmentMapper departmentMapper;
 

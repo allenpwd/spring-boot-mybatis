@@ -11,6 +11,8 @@ import pwd.allen.springbootmybatis.entity.Employee;
 import pwd.allen.springbootmybatis.mapper.EmployeeMapper;
 import pwd.allen.springbootmybatis.service.DeptService;
 
+import javax.sql.DataSource;
+
 @RestController
 public class DeptController {
 
@@ -19,6 +21,9 @@ public class DeptController {
 
     @Autowired
     EmployeeMapper employeeMapper;
+
+    @Autowired
+    DataSource dataSource;
 
 
     @GetMapping("/dept/{id}")
@@ -37,7 +42,8 @@ public class DeptController {
 
     @GetMapping("/emp/{id}")
     public Employee getEmp(@PathVariable("id") Integer id){
-       return employeeMapper.getEmpById(id);
+        System.out.println(dataSource);
+        return employeeMapper.getEmpById(id);
     }
 
 
