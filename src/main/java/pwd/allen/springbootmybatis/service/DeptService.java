@@ -19,6 +19,14 @@ public class DeptService {
     @Autowired
     private DepartmentMapper departmentMapper;
 
+    /**
+     * Cacheable注释：
+     * key 和 keyGenerator 二选一,#id相当于#0或#p0或#a0
+     * cacheManager指定缓存管理器;cacheResolver指定缓存解析器;二选一
+     *
+     * @param id
+     * @return
+     */
     @Cacheable(key="#root.methodName + '[' + #id + ']'")
     public Department getDept(Integer id) {
         return departmentMapper.getDeptById(id);
