@@ -10,6 +10,7 @@ import pwd.allen.springbootmybatis.entity.Department;
 import pwd.allen.springbootmybatis.entity.Employee;
 import pwd.allen.springbootmybatis.mapper.EmployeeMapper;
 import pwd.allen.springbootmybatis.service.DeptService;
+import pwd.allen.springbootmybatis.service.EmpService;
 
 import javax.sql.DataSource;
 
@@ -20,7 +21,7 @@ public class DeptController {
     DeptService deptService;
 
     @Autowired
-    EmployeeMapper employeeMapper;
+    EmpService empService;
 
     @Autowired
     DataSource dataSource;
@@ -43,7 +44,7 @@ public class DeptController {
     @GetMapping("/emp/{id}")
     public Employee getEmp(@PathVariable("id") Integer id){
         System.out.println(dataSource);
-        return employeeMapper.getEmpById(id);
+        return empService.getEmpById(id);
     }
 
 
