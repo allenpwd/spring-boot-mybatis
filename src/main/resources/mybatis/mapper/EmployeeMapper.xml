@@ -13,4 +13,8 @@
     <insert id="insertEmp">
         INSERT INTO employee(lastName,email,gender,d_id) VALUES (#{lastName},#{email},#{gender},#{dId})
     </insert>
+
+    <select id="getEmptByLastName" resultType="pwd.allen.springbootmybatis.entity.Employee" parameterType="String">
+        SELECT * FROM employee WHERE last_name=#{_parameter}
+    </select>
 </mapper>

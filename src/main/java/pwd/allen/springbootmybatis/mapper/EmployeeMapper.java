@@ -1,5 +1,6 @@
 package pwd.allen.springbootmybatis.mapper;
 
+import org.apache.ibatis.annotations.Delete;
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Select;
 import pwd.allen.springbootmybatis.entity.Employee;
@@ -15,4 +16,9 @@ public interface EmployeeMapper {
     public Employee getEmpById(Integer id);
 
     public void insertEmp(Employee employee);
+
+    @Delete("delete from employee where id = #{id}")
+    public int deleteEmp(Employee employee);
+
+    public Employee getEmptByLastName(String lastName);
 }

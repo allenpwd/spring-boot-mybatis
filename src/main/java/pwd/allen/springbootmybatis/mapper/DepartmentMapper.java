@@ -2,6 +2,7 @@ package pwd.allen.springbootmybatis.mapper;
 
 import org.apache.ibatis.annotations.*;
 import pwd.allen.springbootmybatis.entity.Department;
+import pwd.allen.springbootmybatis.service.DeptService;
 
 
 /**
@@ -22,4 +23,7 @@ public interface DepartmentMapper {
 
     @Update("update department set department_name=#{departmentName} where id=#{id}")
     public int updateDept(Department department);
+
+    @Delete("delete from department where id=#{id}")
+    public int deleteDept(Integer id);
 }

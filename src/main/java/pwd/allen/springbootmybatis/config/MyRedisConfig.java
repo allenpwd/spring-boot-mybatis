@@ -1,11 +1,24 @@
 package pwd.allen.springbootmybatis.config;
 
 
+import com.fasterxml.jackson.annotation.JsonAutoDetect;
+import com.fasterxml.jackson.annotation.PropertyAccessor;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import org.springframework.cache.CacheManager;
 import org.springframework.cache.interceptor.KeyGenerator;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.data.redis.cache.RedisCacheConfiguration;
+import org.springframework.data.redis.cache.RedisCacheManager;
+import org.springframework.data.redis.cache.RedisCacheWriter;
+import org.springframework.data.redis.connection.RedisConnectionFactory;
+import org.springframework.data.redis.core.RedisTemplate;
+import org.springframework.data.redis.serializer.*;
+import pwd.allen.springbootmybatis.entity.Department;
+import pwd.allen.springbootmybatis.entity.Employee;
 
 import java.lang.reflect.Method;
+import java.time.Duration;
 import java.util.Arrays;
 
 /**
@@ -36,24 +49,55 @@ import java.util.Arrays;
 @Configuration
 public class MyRedisConfig {
 
-//    @Bean
-//    public RedisTemplate<Object, Department> deptRedisTemplate(
-//            RedisConnectionFactory redisConnectionFactory) {
-//        RedisTemplate<Object, Department> template = new RedisTemplate<>();
-//        template.setConnectionFactory(redisConnectionFactory);
-//        Jackson2JsonRedisSerializer<Department> ser = new Jackson2JsonRedisSerializer<>(Department.class);
-//        template.setDefaultSerializer(ser);
-//        return template;
-//    }
-//
-//    @Bean
-//    public RedisCacheManager redisCacheManager(RedisConnectionFactory redisConnectionFactory) {
-//        RedisCacheConfiguration redisCacheConfiguration = RedisCacheConfiguration.defaultCacheConfig()
-//                .entryTtl(Duration.ofHours(1)); // 设置缓存有效期一小时
-//        return RedisCacheManager
-//                .builder(RedisCacheWriter.nonLockingRedisCacheWriter(redisConnectionFactory))
-//                .cacheDefaults(redisCacheConfiguration).build();
-//    }
+    @Bean
+    public RedisTemplate<Object, Object> redisTemplate(
+            RedisConnectionFactory redisConnectionFactory) {
+        RedisTemplate<Object, Object> template = new RedisTemplate<>();
+        template.setConnectionFactory(redisConnectionFactory);
+        Jackson2JsonRedisSerializer<Object> ser = new Jackson2JsonRedisSerializer<>(Object.class);
+
+        //如果不加上这个，redisTemplate获取json格式对象时返回的是LinkedHashMap；加上这个就能正常返回对象实例
+        ObjectMapper om = new ObjectMapper();
+        om.setVisibility(PropertyAccessor.ALL, JsonAutoDetect.Visibility.ANY);
+        om.enableDefaultTyping(ObjectMapper.DefaultTyping.NON_FINAL);
+        ser.setObjectMapper(om);
+
+        template.setDefaultSerializer(ser);
+        template.setKeySerializer(new StringRedisSerializer());
+        return template;
+    }
+
+
+    /**
+     * 自定义cacheManager，使redis以json格式缓存对象
+     * usePrefix：使用前缀，默认会将cacheName作为可以的前缀；这个是必要的，否则无法区分不同cache
+     *
+     * @param factory
+     * @return
+     */
+    @Bean
+    public CacheManager cacheManager(RedisConnectionFactory factory) {
+        RedisSerializer<String> redisSerializer = new StringRedisSerializer();
+        Jackson2JsonRedisSerializer jackson2JsonRedisSerializer = new Jackson2JsonRedisSerializer(Object.class);
+
+        //必须加这个，否则缓存转换会java.lang.ClassCastException异常
+        ObjectMapper om = new ObjectMapper();
+        om.setVisibility(PropertyAccessor.ALL, JsonAutoDetect.Visibility.ANY);
+        om.enableDefaultTyping(ObjectMapper.DefaultTyping.NON_FINAL);
+        jackson2JsonRedisSerializer.setObjectMapper(om);
+
+        // 配置序列化（解决乱码的问题）
+        RedisCacheConfiguration config = RedisCacheConfiguration.defaultCacheConfig()
+                .entryTtl(Duration.ofHours(1))
+                .serializeKeysWith(RedisSerializationContext.SerializationPair.fromSerializer(redisSerializer))
+                .serializeValuesWith(RedisSerializationContext.SerializationPair.fromSerializer(jackson2JsonRedisSerializer))
+                .disableCachingNullValues();
+
+        RedisCacheManager cacheManager = RedisCacheManager.builder(factory)
+                .cacheDefaults(config)
+                .build();
+        return cacheManager;
+    }
 
     /**
      * 自定义缓存key生成策略
