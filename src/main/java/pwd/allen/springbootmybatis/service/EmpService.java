@@ -56,7 +56,7 @@ public class EmpService {
     public Employee getEmptByLastName(String lastName) {
 
         /** 手动添加缓存 begin **/
-        //使用cacheManager
+        //方式一：使用cacheManager
         Employee emp = cacheManager.getCache("emp").get("allen", Employee.class);
         System.out.println(emp);
 
@@ -67,7 +67,7 @@ public class EmpService {
         如果redisTemplate用的是Jackson2JsonRedisSerializer，emp::allen左右两边会多双引号
         解决方式：template.setKeySerializer(new StringRedisSerializer())
         */
-        //使用redisTemplate
+        //方式二：使用redisTemplate
         Object obj = redisTemplate.opsForValue().get("emp::allen");
         /** 手动添加缓存 end **/
 
